@@ -1,0 +1,49 @@
+name: Terraform
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    services:
+      localstack:
+        image: localstack/localstack
+        ports:
+          - 4566:4566
+          - 4571:4571
+        options: >-
+          --entrypoint=""
+        env:
+          DEFAULT_REGION: eu-central-1
+
+    env:
+      AWS_ACCESS_KEY_ID: mock_access_key
+      AWS_SECRET_ACCESS_KEY: mock_secret_key
+      AWS_DEFAULT_REGION: eu-central-1
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+
+    - name: Initialize Terraform
+      run: terraform init
+
+    - name: Validate Terraform
+      run: terraform validate
+
+    - name: Plan Terraform
+      run: terraform plan
+
+    - name: Apply Terraform
+      run: terraform apply -auto-approve
+    
